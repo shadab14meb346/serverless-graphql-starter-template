@@ -14,6 +14,7 @@
     "run-test": "env-cmd -f ./config/security.env.test jest --runInBand --config jest.config.json --detectOpenHandles --bail --forceExit",
     "test-server": "env-cmd -f ./config/security.env.test yarn migrate && env-cmd -f ./config/security.env.test serverless offline start",
     "test-local": "yarn stop-test-db && yarn start-test-db && (sleep 2 && start-server-and-test 'yarn test-server' http://localhost:4000/test/playground 'yarn run-test')",
+    "test-local-mac": "yarn start-test-db && (sleep 2 && start-server-and-test 'yarn test-server' http://localhost:4000/test/playground 'yarn run-test')",
     "test-local-window": "start-server-and-test 'yarn test-server' http://localhost:4000/test/playground 'yarn run-test'",
     "ci-jest-test": "jest --runInBand --config jest.config.json --detectOpenHandles --bail --forceExit",
     "ci-test-server": "yarn migrate && serverless offline start",
