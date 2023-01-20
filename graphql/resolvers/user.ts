@@ -20,4 +20,10 @@ export const UserResolver = {
       return await UserController.login(args.input);
     },
   },
+  User: {
+    id: ({ id }) => id,
+    email: ({ email }) => email,
+    name: ({ name }) => name,
+    admin: ({ admin }) => admin || false,
+  },
 };
