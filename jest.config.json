@@ -1,0 +1,10 @@
+{
+  "roots": ["<rootDir>/tests"],
+  "transform": {
+    "^.+\\.ts?$": "ts-jest"
+  },
+  "testRegex": "/tests/.*.spec.(js|ts)?$",
+  "moduleFileExtensions": ["ts", "js"],
+  "globalTeardown": "<rootDir>/tests/teardown.ts",
+  "globalSetup": "<rootDir>/tests/setup.ts"
+}

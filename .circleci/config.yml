@@ -1,0 +1,112 @@
+# This workflow needs this environment variables to be defined in circle-ci:
+# AWS_ACCESS_KEY_ID - value of aws_access_key_id inside your ~/.aws/credentials. Like 'AB2TOMRIDDLE3AS5B6'
+# AWS_SECRET_ACCESS_KEY - value of aws_secret_access_key inside your ~/.aws/credentials. Like 'qwertyxZblR+TOMRIDDLEpMcMlouMB1rgQpWwLwz'
+
+version: 2.1
+
+commands:
+  add_aws_credentials:
+    description: "Adds aws credentials"
+    steps:
+      - run:
+          name: "Adding aws credentials"
+          command: mkdir ~/.aws && printf '[default]\naws_access_key_id = %s\naws_secret_access_key = %s\n' ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} >> ~/.aws/credentials
+
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - build-and-test:
+          name: staging-build-and-test
+      - publish-staging-approval:
+          type: approval
+          requires:
+            - staging-build-and-test
+          filters:
+            branches:
+              only:
+                - main
+                - /release-.*/
+      - deploy:
+          name: deploy-staging
+          context: graphql-serverless-backend-staging
+          #all of the environment variables required is coming from this context
+          requires:
+            - staging-build-and-test
+            - publish-staging-approval
+          filters:
+            branches:
+              only:
+                - main
+                - /release-.*/
+
+jobs:
+  build-and-test:
+    docker: # use the docker executor type
+      - image: node:14.19 # the primary container, where your job's commands are run
+      - image: postgres #use postgres image to spin a test db
+        command: postgres -c 'max_connections=500'
+        environment:
+          POSTGRES_NAME: "postgres"
+          POSTGRES_USER: "postgres"
+          POSTGRES_PASSWORD: "postgres"
+    steps:
+      - checkout # check out the code in the project directory
+      # restoring yarn cache to speed up next build runs
+      - restore_cache:
+          keys:
+            - yarn-{{ checksum "yarn.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - yarn-
+      - run:
+          name: Install dependencies
+          command: yarn --frozen-lockfile
+      - save_cache:
+          paths:
+            - ./node_modules
+          key: yarn-{{ checksum "yarn.lock" }}
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "*"
+      - run:
+          name: Run tests
+          command: yarn ci-test
+          environment:
+            NODE_ENV: "test"
+            PROVIDER_STAGE: "test"
+            DATABASE_URL: "postgres://postgres:postgres@localhost:5432/postgres"
+            JWT_SECRET: "secret"
+            REACT_APP_GRAPHQL_ENDPOINT: "http://localhost:4000/test/graphql"
+            STRIPE_SECRET_KEY: "sk_test_51Kxo9lBdIq1U57G2yhiZ3ET8nzFvL6qvLQswkWjZWybuQKbmaNgYeMHU3REa7U0ppjfHBbid7ZUtJ9cFjahbXfYf00ElRqvzJf"
+            STRIPE_WEBHOOK_SECRET: "just a dummy value"
+            STRIPE_SUCCESS_URL: "http://localhost:3000/success"
+            STRIPE_CANCEL_URL: "http://localhost:3000/cancel"
+            httpPort: 4000
+            lambdaPort: 4002
+  deploy:
+    docker: # use the docker executor type
+      - image: node:14.19 # the primary container, where your job's commands are run
+    steps:
+      - checkout # check out the code in the project directory
+      # restoring yarn cache to speed up next build runs
+      - restore_cache:
+          keys:
+            - yarn-{{ checksum "yarn.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - yarn-
+      - run:
+          name: Install dependencies
+          command: yarn --frozen-lockfile
+      - save_cache:
+          paths:
+            - ./node_modules
+          key: yarn-{{ checksum "yarn.lock" }}
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "*"
+      - add_aws_credentials
+      - run:
+          name: Deploy to AWS
+          command: yarn deploy

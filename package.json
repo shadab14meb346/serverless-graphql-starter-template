@@ -1,0 +1,66 @@
+{
+  "name": "graphql-serverless-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "license": "MIT",
+  "scripts": {
+    "migrate": "knex migrate:latest",
+    "create-migration": "knex migrate:make",
+    "rollback-migration": "env-cmd -f ./config/security.env.local knex migrate:rollback",
+    "dev": "env-cmd -f ./config/security.env.local yarn migrate && env-cmd -f ./config/security.env.local serverless offline start",
+    "deploy": "yarn migrate && serverless deploy",
+    "seed-local": "env-cmd -f ./config/security.env.local node ./seed-data/seed_local.js",
+    "seed-staging": "env-cmd -f ./config/security.env.staging node ./seed-data/seed_staging.js",
+    "run-test": "env-cmd -f ./config/security.env.test jest --runInBand --config jest.config.json --detectOpenHandles --bail --forceExit",
+    "test-server": "env-cmd -f ./config/security.env.test yarn migrate && env-cmd -f ./config/security.env.test serverless offline start",
+    "test-local": "yarn stop-test-db && yarn start-test-db && (sleep 2 && start-server-and-test 'yarn test-server' http://localhost:4000/test/playground 'yarn run-test')",
+    "test-local-window": "start-server-and-test 'yarn test-server' http://localhost:4000/test/playground 'yarn run-test'",
+    "ci-jest-test": "jest --runInBand --config jest.config.json --detectOpenHandles --bail --forceExit",
+    "ci-test-server": "yarn migrate && serverless offline start",
+    "ci-test": "start-server-and-test 'yarn ci-test-server' http://localhost:4000/test/playground 'yarn ci-jest-test'",
+    "start-test-db": "docker-compose -f testdb-docker-compose.yml up -d",
+    "stop-test-db": "docker-compose -f testdb-docker-compose.yml down",
+    "format": "prettier --write ."
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx,md}": "prettier --write"
+  },
+  "devDependencies": {
+    "@apollo/client": "^3.5.10",
+    "@tsconfig/node14": "^1.0.1",
+    "apollo-link-context": "^1.0.20",
+    "apollo-upload-client": "^17.0.0",
+    "husky": "^4.3.0",
+    "lint-staged": "^12.3.5",
+    "prettier": "^2.3.0",
+    "serverless-offline": "^6.6.0",
+    "serverless-plugin-typescript": "^1.1.9",
+    "typescript": "^4.0.3"
+  },
+  "dependencies": {
+    "@types/jest": "^27.4.1",
+    "apollo-server-lambda": "^3.6.5",
+    "bcrypt": "^5.0.1",
+    "date-fns": "^2.28.0",
+    "env-cmd": "^10.1.0",
+    "graphql": "^16.3.0",
+    "graphql-playground-middleware-lambda": "^1.7.24",
+    "jest": "^27.5.1",
+    "joi": "^17.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "knex": "^1.0.4",
+    "lodash.merge": "^4.6.2",
+    "pg": "^8.7.1",
+    "react-scripts": "^5.0.0",
+    "serverless": "^3.8.0",
+    "start-server-and-test": "^1.14.0",
+    "stripe": "^8.222.0",
+    "ts-jest": "^27.1.4",
+    "uuidv4": "^6.2.13"
+  }
+}

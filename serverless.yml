@@ -1,0 +1,44 @@
+service: serverless-graphql-rds
+
+frameworkVersion: "3.8.0"
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: ${env:PROVIDER_STAGE}
+  region: us-east-1
+  environment:
+    JWT_SECRET: ${env:JWT_SECRET}
+    DATABASE_URL: ${env:DATABASE_URL}
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+package:
+  patterns:
+    - "migrations/**"
+    - "**.js"
+    - "config"
+
+custom:
+  serverless-offline:
+    httpPort: ${env:httpPort, 3000}
+    lambdaPort: ${env:lambdaPort, 3002}
+  serverless-plugin-typescript:
+    tsConfigFileLocation: "./tsconfig.json"
+
+functions:
+  graphql:
+    handler: server.handler
+    events:
+      - http:
+          path: graphql
+          method: post
+          cors: true
+  playground:
+    handler: server.playgroundHandler
+    events:
+      - http:
+          path: playground
+          method: get
+          cors: true
