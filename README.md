@@ -6,7 +6,6 @@
 2. [How to setup local dev environment](#how-to-setup-local-dev-environment)
 3. [Architecture](#architecture)
 4. [Coding Practices](#coding-practices)
-5. [Migrations Code](#migrations-code)
 
 ## Introduction
 
@@ -60,6 +59,10 @@ sudo docker-compose up
 ```bash
 yarn dev
 ```
+
+## Graphql Playground
+
+Open http://localhost:3000/dev/playground and you will be able to access the graphql playground.
 
 ## Architecture
 
