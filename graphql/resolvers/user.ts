@@ -18,10 +18,7 @@ const validateRegisterInput = (input: User.CreateOpts) => {
 const validateNotADuplicateEmail = async (email: string) => {
   const user = await User.findByEmail(email);
   if (user && user.encrypted_password) {
-    throw new ApolloError("login required", "LOGIN_REQUIRED");
-  }
-  if (user && !user.encrypted_password) {
-    throw new ApolloError("set password", "SET_PASSWORD_REQUIRED");
+    throw new ApolloError("email is already used", "EMAIL_EXISTS");
   }
 };
 export const UserResolver = {

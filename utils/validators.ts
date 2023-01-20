@@ -6,6 +6,7 @@ export const registerInputValidator = (
 ): ValidationResult => {
   const schema = Joi.object({
     email: Joi.string().email().required(),
+    password: Joi.string().min(4).alphanum().required(),
   });
   return schema.validate(input, { abortEarly: false });
 };

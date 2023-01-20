@@ -2,6 +2,7 @@ import { ApolloError } from "apollo-server-lambda";
 
 import { IUser } from "../types/user";
 import { PostGrace } from "../core/db-connection";
+import { getHash } from "../common/bcrypt";
 
 export async function getAll() {
   const results = await PostGrace.DB().select("*").from("users");
@@ -10,14 +11,17 @@ export async function getAll() {
 
 export type CreateOpts = {
   email: string;
+  password: string;
 };
 
 export async function create(opts: CreateOpts) {
   try {
-    const { email } = opts;
+    const { email, password } = opts;
+    const encryptedPassword = getHash(password);
     const results = await PostGrace.DB()
       .insert({
         email,
+        encrypted_password: encryptedPassword,
       })
       .returning("id")
       .into("users");

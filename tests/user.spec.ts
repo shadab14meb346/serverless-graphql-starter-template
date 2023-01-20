@@ -66,6 +66,7 @@ describe("test the registration mutation", () => {
   test("Should register a new user successfully", async () => {
     const input = {
       email: "newemail@gmail.com",
+      password: "12345",
     };
     const response = await registerUserRequest(input);
     expect(typeof response.data.register.user.id).toBe("number");
@@ -73,22 +74,16 @@ describe("test the registration mutation", () => {
     expect(typeof response.data.register.token).toBe("string");
     expect(response.data.register.user.email).toStrictEqual(input.email);
   });
-  test("Should throw an error when duplicate email is used to register, who password is not yet setup", async () => {
-    const input = {
-      email: "newemail@gmail.com",
-    };
-    await expect(registerUserRequest(input)).rejects.toThrowError(
-      "set password"
-    );
-  });
   test("Should throw an error when duplicate email is used to register, who password is setup", async () => {
     //this user is inserted in the setup.ts
     const email = "totallynewuser@gmail.com";
+    const password = "12345";
     const input = {
       email,
+      password,
     };
     await expect(registerUserRequest(input)).rejects.toThrowError(
-      "login required"
+      "email is already used"
     );
   });
 });
@@ -97,6 +92,7 @@ describe("test the invalid input for registration", () => {
   test("Should throw an error about email being empty", async () => {
     const input = {
       email: "",
+      password: "12345",
     };
     try {
       await registerUserRequest(input);
@@ -158,6 +154,7 @@ describe("test getAllUsers query", () => {
   test("Should throw error when an un authorized user query the getAllUsers", async () => {
     const response = await registerUserRequest({
       email: "maytheforce@gmail.com",
+      password: "12345",
     });
     const nonAdminUserClient = createApolloClientInstance(
       response.data.register.token

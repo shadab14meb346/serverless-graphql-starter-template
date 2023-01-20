@@ -14,6 +14,7 @@ const userTypeDef = gql`
 
   input RegistrationInput {
     email: String!
+    password: String!
   }
 
   type User {
