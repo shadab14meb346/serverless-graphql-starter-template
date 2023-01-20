@@ -26,12 +26,6 @@ export const DB = () => SingletonDB.getInstance();
 
 export enum Table {
   USERS = "users",
-  ADDRESS = "address",
-  ZIP_CODE = "zip_code",
-  ORDER = "orders",
-  ORDER_TO_PRODUCT = "order_to_product",
-  SCHEDULE = "schedules",
-  STRIPE_SESSION = "stripe_session",
 }
 
 export * as PostGrace from "./db-connection";
