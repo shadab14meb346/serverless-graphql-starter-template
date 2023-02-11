@@ -6,6 +6,7 @@
 2. [How to setup local dev environment](#how-to-setup-local-dev-environment)
 3. [Architecture](#architecture)
 4. [Coding Practices](#coding-practices)
+5. [Common Issues](#common-issues)
 
 ## Introduction
 
@@ -13,13 +14,17 @@ This repo contains the starter code for the a serverless graphql backend.
 
 ## How to setup local dev environment
 
-#### Note: The steps mentioned below is for ubuntu. For MAC as well it should remain same as ubuntu. But for windows some things might change. I haven't tested for the windows yet.
+#### Note: 
+- The steps mentioned below is for ubuntu. 
+- For MAC as well it should remain same as ubuntu. 
+- But for windows some things might change. I haven't tested for the windows yet.
+- VERY IMPORTANT: Make sure to keep the node version less then 15
 
 ### Prerequisites
 
 - Docker
 - Docker Compose
-- NodeJS
+- NodeJS V < 15
 
 ### Steps
 
@@ -107,3 +112,5 @@ async (_parent, _args, ctx, info) => {
       return results[0];
     },
 ```
+## Common Issues
+- For Node version more then 15 serverless-offline has issues and the started graphql server won't work properly. Make sure to keep the NodeJS version less then 15. Here's [https://github.com/dherault/serverless-offline/issues/1150] the detail discussion about this issue. As due to post request not working properly with the Node version more then 15 the graphql server won't be able to connect to playgroud or apollo sandbox studio.
